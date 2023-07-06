@@ -1,11 +1,202 @@
 ﻿@page "/FindReservation"
 @using Assignment3.Data
 
-<h3>Find Reservation</h3>
+<h1>Find Reservation</h1>
 
-<h3>Update Reservation</h3>
+<!-- Search Form -->
+<form class="form-group" @onsubmit="FindReservation">
+    <label for="reservationCode">Reservation Code:</label>
+    <input id="reservationCode" type="text" @bind="SearchReservationCode" />
 
-@code {
+    <label for="airline">Airline:</label>
+    <input id="airline" type="text" @bind="SearchAirline" />
+
+    <label for="fullName">Full Name:</label>
+    <input id="fullName" type="text" @bind="SearchFullName" />
+
+    <button type="submit">Find Reservations</button>
+</form>
+
+<!-- Reservations List -->
+@if (Reservations != null && Reservations.Count > 0)
+{
+    <h2>Found Reservations</h2>
+    <ul>
+        @foreach (var reservation in Reservations.Where(r => MatchesSearchCriteria(r)))
+        {
+            <li>
+                <button @onclick="() => SelectReservation(reservation)">
+                    @reservation.ReservationCode
+                </button>
+            </li>
+        }
+    </ul>
+}
+
+<!-- Selected Reservation Details and Update Form -->
+@if (SelectedReservation != null)
+{
+    <h2>Selected Reservation</h2>
+    <div>
+        <label for="reservationCode">Reservation Code:</label>
+        <input id="reservationCode" type="text" value="@SelectedReservation.ReservationCode" readonly />
+
+        <label for="flightCode">Flight Code:</label>
+        <input id="flightCode" type="text" value="@SelectedReservation.SelectedFlight.FlightId" readonly />
+
+        <label for="airlineName">Airline Name:</label>
+        <input id="airlineName" type="text" value="@SelectedReservation.SelectedFlight.AirlineName" readonly />
+
+        <label for="cost">Cost:</label>
+        <input id="cost" type="text" value="@SelectedReservation.SelectedFlight.Cost" readonly />
+
+        <label for="name">Name:</label>
+        <input id="name" type="text" @bind="@SelectedReservation.FullName" />
+
+        <label for="citizenship">Citizenship:</label>
+        <input id="citizenship" type="text" @bind="@SelectedReservation.Citizenship" />
+
+        <label for="status">Status:</label>
+        <select id="status" @bind="@SelectedReservation.Status">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+
+        <button @onclick="UpdateReservation">Update</button>
+    </div>
+}
+
+@code{
+    string SearchReservationCode { get; set; }
+    string SearchAirline { get; set; }
+    string SearchFullName { get; set; }
+
+    List<Reservation> Reservations { get; set; }
+    List<Flight> flights = new List<Flight>();
+
+    Reservation SelectedReservation { get; set; }
+
+    void FindReservation()
+    {
+
+        SelectedReservation = null; // Reset the selected reservation when performing a new search
+    }
+
+    void SelectReservation(Reservation reservation)
+    {
+        SelectedReservation = reservation;
+    }
+
+
+
+    bool MatchesSearchCriteria(Reservation reservation)
+    {
+        return (string.IsNullOrEmpty(SearchReservationCode) || reservation.ReservationCode == SearchReservationCode)
+            && (string.IsNullOrEmpty(SearchAirline) || reservation.SelectedFlight.AirlineName == SearchAirline)
+            && (string.IsNullOrEmpty(SearchFullName) || reservation.FullName == SearchFullName);
+    }
+
+
+
+    void UpdateReservation()
+    {
+        // Update the reservation in the Reservations list
+        var index = Reservations.FindIndex(r => r.ReservationCode == SelectedReservation.ReservationCode);
+        Reservations[index] = SelectedReservation;
+
+        // Update the reservations.csv file
+        try
+        {
+            List<string> lines = new List<string>();
+
+            foreach (var reservation in Reservations)
+            {
+                string line = $"{reservation.ReservationCode},{reservation.SelectedFlight.FlightId},{reservation.SelectedFlight.AirlineName},{reservation.SelectedFlight.Cost},{reservation.FullName},{reservation.Citizenship},{reservation.Status}";
+                lines.Add(line);
+            }
+
+            System.IO.File.WriteAllLinesAsync("/Users/jessemunro/Projects/Assignment3/Resources/Raw/reservations.csv", lines);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Failed to update reservations.csv");
+        }
+    }
+
+
+
+
+
+    //________ON PAGE LOAD LOGIC BELOW ________
+
+    public async Task LoadReservations()
+    {
+        string[] lines = await System.IO.File.ReadAllLinesAsync("/Users/jessemunro/Projects/Assignment3/Resources/Raw/reservations.csv");
+
+        List<Reservation> loadedReservations = new List<Reservation>();
+
+        foreach (string line in lines)
+        {
+            string[] parts = line.Split(',');
+
+            string reservationCode = parts[0];
+            string flightCode = parts[1];
+            string airline = parts[2];
+            decimal cost = decimal.Parse(parts[3]);
+            string fullName = parts[4];
+            string citizenship = parts[5];
+            string status = parts[6];
+
+            // Find the matching Flight object based on flight code
+            Flight selectedFlight = flights.FirstOrDefault(f => f.FlightId == flightCode);
+
+            if (selectedFlight != null)
+            {
+                Reservation reservation = new Reservation(reservationCode, selectedFlight, fullName, citizenship, status);
+                loadedReservations.Add(reservation);
+            }
+        }
+
+        Reservations = loadedReservations;
+    }
+
+    public async Task LoadFlights()
+    {
+        try
+        {
+            string[] lines = await System.IO.File.ReadAllLinesAsync("/Users/jessemunro/Projects/Assignment3/Resources/Raw/flights.csv");
+
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+
+                Flight flight = new Flight(
+                    flightId: parts[0],
+                    airlineName: parts[1],
+                    departureAirport: parts[2],
+                    arrivalAirport: parts[3],
+                    day: parts[4],
+                    time: parts[5],
+                    passengers: int.Parse(parts[6]),
+                    cost: decimal.Parse(parts[7])
+                );
+                flights.Add(flight);
+
+
+            }
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("awehawda");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFlights();
+        await LoadReservations();
+    }
+
 
 }
 

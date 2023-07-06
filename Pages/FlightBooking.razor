@@ -192,96 +192,17 @@
                 (SelectedDay == "" || f.Day == SelectedDay)
             )
             .ToList();
+
     }
+
+
+
     public void SelectFlight(Flight flight)
     {
         SelectedFlight = flight;
     }
 
-    //public void MakeReservation()
-    //{
-    //    if (SelectedFlight == null)
-    //    {
-    //        errorMessage = "Please select a flight.";
-    //        return;
-    //    }
 
-    //    if (string.IsNullOrWhiteSpace(FullName))
-    //    {
-    //        errorMessage = "Please enter the traveler's full name.";
-    //        return;
-    //    }
-
-    //    if (string.IsNullOrWhiteSpace(Citizenship))
-    //    {
-    //        errorMessage = "Please enter the traveler's citizenship.";
-    //        return;
-    //    }
-
-    //    try
-    //    {
-    //        //if (SelectedFlight.IsFullyBooked)
-    //        //{
-    //        //    errorMessage = "The selected flight is fully booked.";
-    //        //    return;
-    //        //}
-
-    //        Reservation reservation = new Reservation(SelectedFlight, FullName, Citizenship);
-    //        // Save the reservation to the binary file
-
-    //        // Reset fields and display success message
-    //        SelectedFlight = null;
-    //        FullName = string.Empty;
-    //        Citizenship = string.Empty;
-    //        errorMessage = "Reservation successfully made.";
-    //        reservations.Add(reservation);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        errorMessage = ex.Message;
-    //    }
-    //}
-
-    //public void MakeReservation()
-    //{
-    //    if (SelectedFlight == null)
-    //    {
-    //        errorMessage = "Please select a flight.";
-    //        return;
-    //    }
-
-    //    if (string.IsNullOrWhiteSpace(FullName))
-    //    {
-    //        errorMessage = "Please enter the traveler's full name.";
-    //        return;
-    //    }
-
-    //    if (string.IsNullOrWhiteSpace(Citizenship))
-    //    {
-    //        errorMessage = "Please enter the traveler's citizenship.";
-    //        return;
-    //    }
-
-    //    try
-    //    {
-    //        string reservationCode = GenerateReservationCode();
-    //        string reservationData = $"{reservationCode},{SelectedFlight.FlightId},{SelectedFlight.AirlineName},{SelectedFlight.Cost},{FullName},{Citizenship},active";
-
-    //        // Save the reservation to the reservations.csv file
-    //        string filePath = "/Users/jessemunro/Projects/Assignment3/Resources/Raw/reservations.csv";
-    //        File.AppendAllText(filePath, $"{reservationData}\n");
-
-    //        // Reset fields and display success message
-    //        SelectedFlight = null;
-    //        FullName = string.Empty;
-    //        Citizenship = string.Empty;
-    //        errorMessage = "Reservation successfully made.";
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        errorMessage = ex.Message;
-    //    }
-    //}
     public void MakeReservation()
     {
         if (SelectedFlight == null)
