@@ -77,7 +77,7 @@
 {
     <form id="reservation_form">
         <label for="flightCode">Flight Code:</label>
-        <input id="flightCode" type="text" value="@SelectedFlight.FlightId" readonly class="input"/>
+        <input id="flightCode" type="text" value="@SelectedFlight.FlightId" readonly class="input" />
 
         <label for="airline">Airline:</label>
         <input id="airline" type="text" value="@SelectedFlight.AirlineName" readonly class="input" />
@@ -100,10 +100,8 @@
         <button type="button" @onclick="MakeReservation" id="Reserve_flight">Make Reservation</button>
     </form>
 }
-<!--acts as placeholders for the flight information-->
 else
 {
-    <h4>Make Reservation:</h4>
     <form class="form-group">
         <label for="flightCode">Flight Code:</label>
         <input id="flightCode" type="text" readonly class="input" />
@@ -128,7 +126,6 @@ else
 
         <button type="button" class="input" id="Reserve_flight">Make Reservation</button>
     </form>
-
 }
 
 <!--styles the page accordingly-->
