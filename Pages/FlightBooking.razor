@@ -1,121 +1,208 @@
 ﻿@page "/flightbooking"
 @using Assignment3.Data
 
-<h3>Flight Finder</h3>
+<h3 class="h3">Flight Finder</h3>
 
-<form>
-    <div class="form-group">
-        <label for="departureAirport">From:</label>
-        <select id="departureAirport" @bind="SelectedDepartureAirport">
-            <option value="">Any</option>
-            @foreach (var codeAir in AirportCodes)
-            {
-                <option value="@codeAir">@codeAir</option>
-            }
-        </select>
+<!--the search factors for the flight information-->
+<form class="form">
+    <div class="flex-container">
+        <div class="flex-item">
+            <label class="label" for="departureAirport">From:</label>
+            <select id="departureAirport" @bind="SelectedDepartureAirport" class="select">
+                <option value="">Any</option>
+                @foreach (var codeAir in AirportCodes)
+                {
+                    <option value="@codeAir">@codeAir</option>
+                }
+            </select>
+        </div>
+
+        <div class="flex-item">
+            <label class="label" for="arrivalAirport">To:</label>
+            <select id="arrivalAirport" @bind="SelectedArrivalAirport" class="select">
+                <option value="">Any</option>
+                @foreach (var codeAir in AirportCodes)
+                {
+                    <option value="@codeAir">@codeAir</option>
+                }
+            </select>
+        </div>
+
+        <div class="flex-item">
+            <label class="label" for="day">Day:</label>
+            <select id="day" @bind="SelectedDay" class="select">
+                <option value="">Any</option>
+                @foreach (var day in Days)
+                {
+                    <option value="@day">@day</option>
+                }
+            </select>
+        </div>
+
+        <button class="find-flights" type="button" @onclick="FindFlights">Find Flights</button>
     </div>
-
-    <div class="form-group">
-        <label for="arrivalAirport">To:</label>
-        <select id="arrivalAirport" @bind="SelectedArrivalAirport">
-            <option value="">Any</option>
-            @foreach (var codeAir in AirportCodes)
-            {
-                <option value="@codeAir">@codeAir</option>
-            }
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="day">Day:</label>
-        <select id="day" @bind="SelectedDay">
-            <option value="">Any</option>
-            @foreach (var day in Days)
-            {
-                <option value="@day">@day</option>
-            }
-        </select>
-    </div>
-
-    <button type="button" @onclick="FindFlights">Find Flights</button>
 </form>
 
+<h3 class="h3" id="flights">Flights</h3>
 
-
-<!-- Display the matched flights -->
+<!--displays searched flight-->
 @if (matchedFlights.Count > 0)
 {
-    <h4>Matched Flights:</h4>
-    <div class="scrollable-list">
-        <table>
-            <tbody>
-                @foreach (var flight in matchedFlights)
-                {
-                    <Button @onclick="() => SelectFlight(flight)">
-                    <tr>
-                        <td>@flight.FlightId</td>
-                        <td>@flight.AirlineName</td>
-                        <td>@flight.DepartureAirport</td>
-                        <td>@flight.ArrivalAirport</td>
-                        <td>@flight.Day</td>
-                        <td>@flight.Time</td>
-                        <td>@flight.Passengers</td>
-                        <td>@flight.Cost</td>
-                    </tr>
-                    </Button>
-                }
-            </tbody>
-        </table>
-    </div>
+    
+    <table>
+        <tbody id="tbody">
+            @foreach (var flight in matchedFlights)
+            {
+                <Button @onclick="() => SelectFlight(flight)">
+                <tr id="flight_info">
+                    <td>@flight.FlightId</td>
+                    <td>@flight.AirlineName</td>
+                    <td>@flight.DepartureAirport</td>
+                    <td>@flight.ArrivalAirport</td>
+                    <td>@flight.Day</td>
+                    <td>@flight.Time</td>
+                    <td>@flight.Passengers</td>
+                    <td>@flight.Cost</td>
+                </tr>
+                </Button>
+            }
+        </tbody>
+    </table>
 }
 
-<!-- Reservation form code -->
 
-<h3>Reserve</h3>
+<h3 class="h3" id="reserve">Reserve</h3>
+<!--displays the flight information which eventually be placed into the placeholders on click-->
 @if (SelectedFlight != null)
+{
+    <form id="reservation_form">
+        <label for="flightCode">Flight Code:</label>
+        <input id="flightCode" type="text" value="@SelectedFlight.FlightId" readonly class="input"/>
+
+        <label for="airline">Airline:</label>
+        <input id="airline" type="text" value="@SelectedFlight.AirlineName" readonly class="input" />
+
+        <label for="day">Day:</label>
+        <input id="day" type="text" value="@SelectedFlight.Day" readonly class="input" />
+
+        <label for="time">Time:</label>
+        <input id="time" type="text" value="@SelectedFlight.Time" readonly class="input" />
+
+        <label for="cost">Cost:</label>
+        <input id="cost" type="text" value="@SelectedFlight.Cost" readonly class="input" />
+
+        <label for="fullName">Full Name:</label>
+        <input id="fullName" type="text" @bind="FullName" class="input" />
+
+        <label for="citizenship">Citizenship:</label>
+        <input id="citizenship" type="text" @bind="Citizenship" class="input" />
+
+        <button type="button" @onclick="MakeReservation" id="Reserve_flight">Make Reservation</button>
+    </form>
+}
+<!--acts as placeholders for the flight information-->
+else
 {
     <h4>Make Reservation:</h4>
     <form class="form-group">
         <label for="flightCode">Flight Code:</label>
-        <input id="flightCode" type="text" value="@SelectedFlight.FlightId" readonly />
+        <input id="flightCode" type="text" readonly class="input" />
 
         <label for="airline">Airline:</label>
-        <input id="airline" type="text" value="@SelectedFlight.AirlineName" readonly />
+        <input id="airline" type="text" readonly class="input" />
 
         <label for="day">Day:</label>
-        <input id="day" type="text" value="@SelectedFlight.Day" readonly />
+        <input id="day" type="text" readonly class="input" />
 
         <label for="time">Time:</label>
-        <input id="time" type="text" value="@SelectedFlight.Time" readonly />
+        <input id="time" type="text" readonly class="input" />
 
         <label for="cost">Cost:</label>
-        <input id="cost" type="text" value="@SelectedFlight.Cost" readonly />
+        <input id="cost" type="text" readonly class="input" />
 
         <label for="fullName">Full Name:</label>
-        <input id="fullName" type="text" @bind="FullName" />
+        <input id="fullName" type="text" class="input" />
 
         <label for="citizenship">Citizenship:</label>
-        <input id="citizenship" type="text" @bind="Citizenship" />
+        <input id="citizenship" type="text" class="input" />
 
-        <button type="button" @onclick="MakeReservation">Make Reservation</button>
+        <button type="button" class="input" id="Reserve_flight">Make Reservation</button>
     </form>
+
 }
 
+<!--styles the page accordingly-->
 <style>
-    .form-group label,
-    .form-group select {
-        display: block;
+
+    #reservation_form{
+        display:flex;
+        flex-direction:column;
     }
 
-    .form-group {
-        margin-bottom: 1em;
+    .input{
+        width: 1220px;
     }
 
-    .scrollable-list {
-        max-height: 300px; /* adjust this value as needed */
-        overflow-y: auto;
+    #citizenship{
+        margin-bottom: 10px;
     }
 
+    #Reserve_flight{
+        background-color: dodgerblue;
+        color: white;
+    }
+
+    #flight_info {
+        display: flex;
+        flex-direction: row;
+        width: 1220px;
+    }
+
+    .h3 {
+        text-align: center;
+    }
+
+    #flights, #reserve {
+        padding-top: 50px;
+        padding-bottom: 5px;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .flex-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .flex-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 10px;
+    }
+
+    .label {
+        text-align: left;
+        margin-bottom: 10px;
+    }
+
+    .select {
+        width: 300px;
+    }
+
+    .find-flights {
+        margin-left: auto;
+        margin-top: 30px;
+        width: 300px;
+        background-color: dodgerblue;
+        color: white;
+    }
 
 </style>
 
@@ -136,18 +223,17 @@
     public string errorMessage;
 
 
-
-
     protected override async Task OnInitializedAsync()
     {
         await LoadFlights();
     }
 
+    //loads the page when the it pops up
     public async Task LoadFlights()
     {
         try
         {
-            string[] lines = await System.IO.File.ReadAllLinesAsync("/Users/jessemunro/Projects/Assignment3/Resources/Raw/flights.csv");
+            string[] lines = await System.IO.File.ReadAllLinesAsync("C:/git hub and other stuff/Object-Oriented-1/programming 2(c sharp)/Assignment2/Assignment3/Resources/Raw/flights.csv");
 
             foreach (string line in lines)
             {
@@ -192,17 +278,13 @@
                 (SelectedDay == "" || f.Day == SelectedDay)
             )
             .ToList();
-
     }
-
-
-
     public void SelectFlight(Flight flight)
     {
         SelectedFlight = flight;
     }
 
-
+    //puts the flight information into a reservation file, and displays an error when the required fields are not enetered
     public void MakeReservation()
     {
         if (SelectedFlight == null)
@@ -229,7 +311,7 @@
             Reservation reservation = new Reservation(reservationCode, SelectedFlight, FullName, Citizenship, "active");
 
             // Save the reservation to the reservations.csv file
-            string filePath = "/Users/jessemunro/Projects/Assignment3/Resources/Raw/reservations.csv";
+            string filePath = "C:/git hub and other stuff/Object-Oriented-1/programming 2(c sharp)/Assignment2/Assignment3/Resources/Raw/reservation.csv";
             string reservationData = $"{reservation.ReservationCode},{reservation.SelectedFlight.FlightId},{reservation.SelectedFlight.AirlineName},{reservation.SelectedFlight.Cost},{reservation.FullName},{reservation.Citizenship},{reservation.Status}";
             File.AppendAllText(filePath, $"{reservationData}\n");
 
@@ -245,6 +327,7 @@
         }
     }
 
+    //generats a flight code upon reservation
     private string GenerateReservationCode()
     {
         // Generate a reservation code in the format: LDDDD (e.g., I1234)
